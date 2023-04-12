@@ -54,6 +54,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
                     KeyCode::Left => game.active_tile.x -= 1,
                     KeyCode::Right => game.active_tile.x += 1,
                     KeyCode::Enter => game.place_mark(),
+                    KeyCode::Char(' ') => game.place_mark(),
                     KeyCode::Char('q') => return Ok(()),
                     _ => {}
                 },
