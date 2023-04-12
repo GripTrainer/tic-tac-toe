@@ -1,9 +1,9 @@
-use game::Game;
 use crossterm::{
     event::{poll, read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+use game::Game;
 use std::{error::Error, io, time::Duration};
 use tui::{
     backend::{Backend, CrosstermBackend},
@@ -66,12 +66,69 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
                 },
                 _ => {}
             }
-
             if game.has_won() {
-                return Ok(());
+                break;
             }
         }
     }
+
+    loop {
+        terminal.draw(|f| game_over_screen(f, &mut game))?;
+
+        if poll(Duration::from_millis(500))? {
+            match read()? {
+                Event::Key(event) => match event.code {
+                    KeyCode::Char('q') => return Ok(()),
+                    _ => {}
+                },
+                _ => {}
+            }
+        }
+    }
+}
+
+fn game_over_screen<B: Backend>(frame: &mut Frame<B>, game: &mut Game) {
+    let size = frame.size();
+    let game_border = Block::default()
+        .borders(Borders::ALL)
+        .title("Tic Tac Toe")
+        .title_alignment(Alignment::Center)
+        .border_type(BorderType::Rounded);
+
+    frame.render_widget(game_border, frame.size());
+
+    let exit_message_height = 3;
+    let vertical_padding = (size.height - exit_message_height) / 2;
+
+    let vertical_layout = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints(
+            [
+                Constraint::Length(vertical_padding),
+                Constraint::Length(exit_message_height),
+                Constraint::Length(vertical_padding),
+            ]
+            .as_ref(),
+        )
+        .split(size);
+
+    let game_over_text_area = vertical_layout[1];
+    // Winner is opposite to who's turn it is
+    // TODO: Set a winner attribute on the game struct
+    let winner_name = match game.player_turn {
+        game::Player::Cross => "O",
+        game::Player::Nought => "X",
+    };
+
+    let game_over_message = format!("{} is the winner. <q> to exit", winner_name);
+
+    let tile = Block::default().borders(Borders::NONE);
+
+    let tile_text = Paragraph::new(game_over_message)
+        .block(tile)
+        .alignment(Alignment::Center);
+
+    frame.render_widget(tile_text, game_over_text_area);
 }
 
 fn create_board_rectangle<B: Backend>(frame: &mut Frame<B>) -> Rect {
