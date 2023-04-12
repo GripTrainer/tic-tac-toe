@@ -87,7 +87,22 @@ fn create_board_rectangle<B: Backend>(frame: &mut Frame<B>) -> Rect {
         )
         .split(vertical_layout[1]);
 
-    horizontal_layout[1]
+    let bottom_center_bottom = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
+        .split(vertical_layout[2]);
+
+    let instruction_menu = Block::default()
+        .borders(Borders::TOP)
+        .title(" move: <arrows> | place: <spacebar> or <enter> | quit: <q> ")
+        .title_alignment(Alignment::Center)
+        .border_type(BorderType::Plain);
+
+    frame.render_widget(instruction_menu, bottom_center_bottom[1]);
+
+    let center_middle_chunk = horizontal_layout[1];
+
+    center_middle_chunk
 }
 
 pub fn game_screen<B: Backend>(frame: &mut Frame<B>, game: &mut Game) {
