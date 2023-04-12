@@ -60,7 +60,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
                     KeyCode::Down => app.active_tile.y += 1,
                     KeyCode::Left => app.active_tile.x -= 1,
                     KeyCode::Right => app.active_tile.x += 1,
-                    KeyCode::Enter => app.handle_move(),
+                    KeyCode::Enter => app.place_mark(),
                     KeyCode::Char('q') => return Ok(()),
                     _ => {}
                 },
@@ -68,12 +68,6 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
             }
 
             if app.has_won() {
-                if app.is_cross_turn {
-                    println!("Noughts has won!")
-                } else {
-                    println!("Crosses has won!")
-                }
-
                 return Ok(());
             }
         }
@@ -163,8 +157,8 @@ fn ui<B: Backend>(frame: &mut Frame<B>, app: &mut App) {
 
             let tile_str = match app.board[column_index][row_index] {
                 None => "",
-                Some(app::TileState::Nought) => "O",
-                Some(app::TileState::Cross) => "X",
+                Some(app::Player::Nought) => "O",
+                Some(app::Player::Cross) => "X",
             };
 
             let tile_text = Paragraph::new(tile_str)

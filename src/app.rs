@@ -1,5 +1,6 @@
-#[derive(PartialEq)]
-pub enum TileState {
+#[derive(Default, PartialEq)]
+pub enum Player {
+    #[default]
     Nought,
     Cross,
 }
@@ -17,23 +18,27 @@ impl Default for BoardCordinate {
 
 #[derive(Default)]
 pub struct App {
-    pub board: [[Option<TileState>; 3]; 3],
+    pub board: [[Option<Player>; 3]; 3],
     pub active_tile: BoardCordinate,
-    pub is_cross_turn: bool,
+    pub player_turn: Player,
     pub game_over: bool,
 }
 
 impl App {
-    pub fn handle_move(&mut self) {
-        if self.is_cross_turn {
-            self.board[self.active_tile.y][self.active_tile.x] = Some(TileState::Cross)
-        } else {
-            self.board[self.active_tile.y][self.active_tile.x] = Some(TileState::Nought)
+    pub fn place_mark(&mut self) {
+        match self.player_turn {
+            Player::Cross => {
+                self.board[self.active_tile.y][self.active_tile.x] = Some(Player::Cross);
+                self.player_turn = Player::Nought;
+            }
+            Player::Nought => {
+                self.board[self.active_tile.y][self.active_tile.x] = Some(Player::Nought);
+                self.player_turn = Player::Cross;
+            }
         }
-        self.is_cross_turn = !self.is_cross_turn
     }
 
-    fn check_winner(&mut self, state: &Option<TileState>) -> bool {
+    fn check_winner(&mut self, state: &Option<Player>) -> bool {
         let mut is_winner = false;
 
         // rows
@@ -63,6 +68,6 @@ impl App {
     }
 
     pub fn has_won(&mut self) -> bool {
-        self.check_winner(&Some(TileState::Cross)) || self.check_winner(&Some(TileState::Nought))
+        self.check_winner(&Some(Player::Cross)) || self.check_winner(&Some(Player::Nought))
     }
 }
