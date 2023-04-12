@@ -14,8 +14,8 @@ impl Default for BoardCordinate {
 #[derive(Default, PartialEq)]
 pub enum Player {
     #[default]
-    Nought,
     Cross,
+    Nought,
 }
 
 #[derive(Default)]
