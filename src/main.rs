@@ -162,9 +162,9 @@ fn ui<B: Backend>(frame: &mut Frame<B>, app: &mut App) {
                 .border_type(BorderType::Thick);
 
             let tile_str = match app.board[column_index][row_index] {
-                app::TileState::Empty => "",
-                app::TileState::Nought => "O",
-                app::TileState::Cross => "X",
+                None => "",
+                Some(app::TileState::Nought) => "O",
+                Some(app::TileState::Cross) => "X",
             };
 
             let tile_text = Paragraph::new(tile_str)
