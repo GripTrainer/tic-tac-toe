@@ -11,11 +11,26 @@ impl Default for BoardCordinate {
     }
 }
 
-#[derive(Default, PartialEq)]
+#[derive(Default, PartialEq, Clone, Copy)]
 pub enum Player {
     #[default]
     Cross,
     Nought,
+}
+
+#[derive(PartialEq, Clone, Copy)]
+pub enum FinishedState {
+    Draw,
+    Won(Player),
+}
+
+impl FinishedState {
+    fn new(player: Option<Player>) -> Self {
+        match player {
+            Some(player) => FinishedState::Won(player),
+            None => FinishedState::Draw,
+        }
+    }
 }
 
 #[derive(Default)]
@@ -43,9 +58,20 @@ impl Game {
         }
     }
 
-    pub fn has_won(&mut self) -> bool {
-        check_winner(&self.board, Some(Player::Cross))
-            || check_winner(&self.board, Some(Player::Nought))
+    pub fn check_finish_state(&mut self) -> Option<FinishedState> {
+        if check_winner(&self.board, Some(Player::Cross)) {
+            Some(FinishedState::new(Some(Player::Cross)))
+        } else if check_winner(&self.board, Some(Player::Nought)) {
+            Some(FinishedState::new(Some(Player::Nought)))
+        } else if self
+            .board
+            .iter()
+            .all(|row| row.iter().all(|col| col.is_some()))
+        {
+            Some(FinishedState::new(None))
+        } else {
+            None
+        }
     }
 }
 

@@ -7,14 +7,14 @@ use tui::{
     Frame,
 };
 
-use crate::game::{self, Game};
+use crate::game::{self, FinishedState, Game};
 
 const CELL_HEIGHT: u16 = 3;
 const CELL_WIDTH: u16 = 5;
 const BOARD_HEIGHT: u16 = 3 * CELL_HEIGHT;
 const BOARD_WIDTH: u16 = 3 * CELL_WIDTH;
 
-pub fn game_over_screen<B: Backend>(frame: &mut Frame<B>, game: &mut Game) {
+pub fn game_over_screen<B: Backend>(frame: &mut Frame<B>, finished_state: &FinishedState) {
     let size = frame.size();
     let game_border = Block::default()
         .borders(Borders::ALL)
@@ -40,14 +40,17 @@ pub fn game_over_screen<B: Backend>(frame: &mut Frame<B>, game: &mut Game) {
         .split(size);
 
     let game_over_text_area = vertical_layout[1];
-    // Winner is opposite to who's turn it is
-    // TODO: Set a winner attribute on the game struct
-    let winner_name = match game.player_turn {
-        game::Player::Cross => "O",
-        game::Player::Nought => "X",
-    };
 
-    let game_over_message = format!("{} is the winner. <q> to exit", winner_name);
+    let game_over_message = match finished_state {
+        FinishedState::Draw => "Draw! <q> to exist".to_string(),
+        FinishedState::Won(player) => {
+            let winner_name = match player {
+                game::Player::Cross => "X",
+                game::Player::Nought => "O",
+            };
+            format!("{} is the winner. <q> to exit", winner_name)
+        }
+    };
 
     let tile = Block::default().borders(Borders::NONE);
 

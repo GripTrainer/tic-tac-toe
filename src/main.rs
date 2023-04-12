@@ -43,6 +43,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
     let mut game = Game::default();
+    let mut _finish_state = None;
     loop {
         terminal.draw(|f| game_screen(f, &mut game))?;
 
@@ -60,14 +61,16 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
                 },
                 _ => {}
             }
-            if game.has_won() {
+            _finish_state = game.check_finish_state();
+            if _finish_state.is_some() {
                 break;
             }
         }
     }
 
     loop {
-        terminal.draw(|f| game_over_screen(f, &mut game))?;
+        let final_state = _finish_state.expect("Game is finished");
+        terminal.draw(|f| game_over_screen(f, &final_state))?;
 
         if poll(Duration::from_millis(500))? {
             match read()? {
