@@ -49,10 +49,10 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
         if poll(Duration::from_millis(500))? {
             match read()? {
                 Event::Key(event) => match event.code {
-                    KeyCode::Up => game.active_tile.y -= 1,
-                    KeyCode::Down => game.active_tile.y += 1,
-                    KeyCode::Left => game.active_tile.x -= 1,
-                    KeyCode::Right => game.active_tile.x += 1,
+                    KeyCode::Up => game.active_tile.y = (game.active_tile.y + 3 - 1) % 3,
+                    KeyCode::Down => game.active_tile.y = (game.active_tile.y + 1) % 3,
+                    KeyCode::Left => game.active_tile.x = (game.active_tile.x + 3 - 1) % 3,
+                    KeyCode::Right => game.active_tile.x = (game.active_tile.x + 1) % 3,
                     KeyCode::Enter => game.place_mark(),
                     KeyCode::Char(' ') => game.place_mark(),
                     KeyCode::Char('q') => return Ok(()),
