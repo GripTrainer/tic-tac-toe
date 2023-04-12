@@ -27,15 +27,19 @@ pub struct Game {
 
 impl Game {
     pub fn place_mark(&mut self) {
-        match self.player_turn {
-            Player::Cross => {
-                self.board[self.active_tile.y][self.active_tile.x] = Some(Player::Cross);
-                self.player_turn = Player::Nought;
-            }
-            Player::Nought => {
-                self.board[self.active_tile.y][self.active_tile.x] = Some(Player::Nought);
-                self.player_turn = Player::Cross;
-            }
+        let active_tile = &self.board[self.active_tile.y][self.active_tile.x];
+        match active_tile {
+            None => match self.player_turn {
+                Player::Cross => {
+                    self.board[self.active_tile.y][self.active_tile.x] = Some(Player::Cross);
+                    self.player_turn = Player::Nought;
+                }
+                Player::Nought => {
+                    self.board[self.active_tile.y][self.active_tile.x] = Some(Player::Nought);
+                    self.player_turn = Player::Cross;
+                }
+            },
+            Some(_) => {}
         }
     }
 
