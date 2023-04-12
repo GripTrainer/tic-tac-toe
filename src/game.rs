@@ -1,9 +1,4 @@
-#[derive(Default, PartialEq)]
-pub enum Player {
-    #[default]
-    Nought,
-    Cross,
-}
+type Board = [[Option<Player>; 3]; 3];
 
 pub struct BoardCordinate {
     pub x: usize,
@@ -16,9 +11,16 @@ impl Default for BoardCordinate {
     }
 }
 
+#[derive(Default, PartialEq)]
+pub enum Player {
+    #[default]
+    Nought,
+    Cross,
+}
+
 #[derive(Default)]
 pub struct Game {
-    pub board: [[Option<Player>; 3]; 3],
+    pub board: Board,
     pub active_tile: BoardCordinate,
     pub player_turn: Player,
 }
@@ -37,36 +39,50 @@ impl Game {
         }
     }
 
-    fn check_winner(&mut self, state: &Option<Player>) -> bool {
-        let mut is_winner = false;
+    pub fn has_won(&mut self) -> bool {
+        check_winner(&self.board, Some(Player::Cross))
+            || check_winner(&self.board, Some(Player::Nought))
+    }
+}
 
-        // rows
-        for index in 1..self.board.len() {
-            if self.board[index].iter().all(|row| row == state) {
-                is_winner = true
-            }
+fn check_winner(board: &Board, state: Option<Player>) -> bool {
+    let mut is_winner = false;
 
-            // columns
-            if &self.board[0][index] == state
-                && &self.board[1][index] == state
-                && &self.board[2][index] == state
-            {
-                is_winner = true
-            }
-        }
-        // diagonals
-        if (&self.board[0][0] == state && &self.board[1][1] == state && &self.board[2][2] == state)
-            || (&self.board[2][0] == state
-                && &self.board[1][1] == state
-                && &self.board[0][2] == state)
-        {
+    // rows
+    for index in 0..board.len() {
+        if board[index].iter().all(|row| row == &state) {
             is_winner = true
         }
 
-        return is_winner;
+        // columns
+        if board[0][index] == state && board[1][index] == state && board[2][index] == state {
+            is_winner = true
+        }
+    }
+    // diagonals
+    if (board[0][0] == state && board[1][1] == state && board[2][2] == state)
+        || (board[2][0] == state && board[1][1] == state && board[0][2] == state)
+    {
+        is_winner = true
     }
 
-    pub fn has_won(&mut self) -> bool {
-        self.check_winner(&Some(Player::Cross)) || self.check_winner(&Some(Player::Nought))
+    return is_winner;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{check_winner, Board, Player};
+
+    #[test]
+    fn test_check_winner_rows() {
+        let mut board = Board::default();
+        let player = Player::Cross;
+        board[0][0] = Some(Player::Cross);
+        board[0][1] = Some(Player::Cross);
+        board[0][2] = Some(Player::Cross);
+
+        let should_win = check_winner(&board, Some(player));
+
+        assert!(should_win);
     }
 }
