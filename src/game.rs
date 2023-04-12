@@ -17,14 +17,14 @@ impl Default for BoardCordinate {
 }
 
 #[derive(Default)]
-pub struct App {
+pub struct Game {
     pub board: [[Option<Player>; 3]; 3],
     pub active_tile: BoardCordinate,
     pub player_turn: Player,
     pub game_over: bool,
 }
 
-impl App {
+impl Game {
     pub fn place_mark(&mut self) {
         match self.player_turn {
             Player::Cross => {

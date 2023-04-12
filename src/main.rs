@@ -1,4 +1,4 @@
-use app::App;
+use game::Game;
 use crossterm::{
     event::{poll, read, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
@@ -14,7 +14,7 @@ use tui::{
     Frame, Terminal,
 };
 
-mod app;
+mod game;
 
 const CELL_HEIGHT: u16 = 3;
 const CELL_WIDTH: u16 = 5;
@@ -49,25 +49,25 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> io::Result<()> {
-    let mut app = App::default();
+    let mut game = Game::default();
     loop {
-        terminal.draw(|f| ui(f, &mut app))?;
+        terminal.draw(|f| ui(f, &mut game))?;
 
         if poll(Duration::from_millis(500))? {
             match read()? {
                 Event::Key(event) => match event.code {
-                    KeyCode::Up => app.active_tile.y -= 1,
-                    KeyCode::Down => app.active_tile.y += 1,
-                    KeyCode::Left => app.active_tile.x -= 1,
-                    KeyCode::Right => app.active_tile.x += 1,
-                    KeyCode::Enter => app.place_mark(),
+                    KeyCode::Up => game.active_tile.y -= 1,
+                    KeyCode::Down => game.active_tile.y += 1,
+                    KeyCode::Left => game.active_tile.x -= 1,
+                    KeyCode::Right => game.active_tile.x += 1,
+                    KeyCode::Enter => game.place_mark(),
                     KeyCode::Char('q') => return Ok(()),
                     _ => {}
                 },
                 _ => {}
             }
 
-            if app.has_won() {
+            if game.has_won() {
                 return Ok(());
             }
         }
@@ -106,7 +106,7 @@ fn create_board_rectangle<B: Backend>(frame: &mut Frame<B>) -> Rect {
     horizontal_layout[1]
 }
 
-fn ui<B: Backend>(frame: &mut Frame<B>, app: &mut App) {
+fn ui<B: Backend>(frame: &mut Frame<B>, game: &mut Game) {
     let game_border = Block::default()
         .borders(Borders::ALL)
         .title("Tic Tac Toe")
@@ -144,7 +144,7 @@ fn ui<B: Backend>(frame: &mut Frame<B>, app: &mut App) {
 
         for row_index in 0..board_rows.len() {
             let style = {
-                if row_index == app.active_tile.x && column_index == app.active_tile.y {
+                if row_index == game.active_tile.x && column_index == game.active_tile.y {
                     Style::default().bg(Color::LightYellow)
                 } else {
                     Style::default()
@@ -155,10 +155,10 @@ fn ui<B: Backend>(frame: &mut Frame<B>, app: &mut App) {
                 .borders(Borders::ALL)
                 .border_type(BorderType::Thick);
 
-            let tile_str = match app.board[column_index][row_index] {
+            let tile_str = match game.board[column_index][row_index] {
                 None => "",
-                Some(app::Player::Nought) => "O",
-                Some(app::Player::Cross) => "X",
+                Some(game::Player::Nought) => "O",
+                Some(game::Player::Cross) => "X",
             };
 
             let tile_text = Paragraph::new(tile_str)
