@@ -21,7 +21,6 @@ pub struct Game {
     pub board: [[Option<Player>; 3]; 3],
     pub active_tile: BoardCordinate,
     pub player_turn: Player,
-    pub game_over: bool,
 }
 
 impl Game {
